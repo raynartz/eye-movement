@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Extraocular muscles and eye movements</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#101b2c;color:#eef4ff;
+    font:17px system-ui,sans-serif}
+  main{max-width:1000px;margin:auto;padding:26px}
+  h1{font-size:30px;margin-bottom:8px}
+  .muted{color:#b5c5da;font-size:15px}
+  .panel{background:#192940;border-radius:20px;padding:22px;
+    margin:20px 0}
+  svg{width:100%;max-height:410px}
+  button,select{font:inherit;color:#eef4ff;background:#263e5e;
+    border:1px solid #6582a5;border-radius:9px;padding:10px;
+    margin:5px;cursor:pointer}
+  button.active{background:#176c83;border-color:#63e0ef}
+  #title{font-size:25px;color:#66e1eb}
+  #description{min-height:52px;line-height:1.6}
+  #phase{color:#ffd47c;min-height:26px}
+  .controls{display:flex;flex-wrap:wrap;align-items:center}
+  a{color:#8fdae9}
+  .note{font-size:14px;line-height:1.6;color:#bbcada}
+</style>
+<main>
+<h1>Extraocular muscles</h1>
+<p class="muted">Right eye • Anterior view • Nose on your right</p>
+
+<div class="controls">
+  <button id="play">Pause</button>
+  <button id="next">Next muscle</button>
+  <select id="mode" aria-label="Animation mode">
+    <option value="actions">Actions from primary position</option>
+    <option value="test">Clinical testing positions</option>
+  </select>
+  <label class="muted">Speed
+    <select id="speed">
+      <option value="0.6">Slow</option>
+      <option value="1" selected>Normal</option>
+      <option value="1.5">Fast</option>
+    </select>
+  </label>
+</div>
+<div id="buttons"></div>
+
+<div class="panel">
+  <div id="title"></div>
+  <p id="description"></p>
+  <div id="phase"></div>
+
+  <svg viewBox="0 0 800 410" role="img"
+       aria-label="Animated right eye demonstrating muscle actions">
+    <defs>
+      <radialGradient id="sclera" cx=".4" cy=".35">
+        <stop stop-color="white"/>
+        <stop offset=".75" stop-color="#e7edf4"/>
+        <stop offset="1" stop-color="#98adc4"/>
+      </radialGradient>
+      <radialGradient id="iris">
+        <stop stop-color="#0b3446"/>
+        <stop offset=".65" stop-color="#419db4"/>
+        <stop offset="1" stop-color="#173f55"/>
+      </radialGradient>
+      <clipPath id="globe">
+        <circle cx="350" cy="205" r="145"/>
+      </clipPath>
+    </defs>
+
+    <text x="140" y="35" fill="#bbcada" font-size="17">Temporal</text>
+    <text x="500" y="35" fill="#bbcada" font-size="17">Nasal</text>
+    <path d="M620 115 Q565 205 620 295" fill="none"
+          stroke="#8195ae" stroke-width="5"/>
+    <text x="625" y="210" fill="#bbcada" font-size="18">Nose</text>
+
+    <circle cx="350" cy="205" r="148" fill="#435870"/>
+    <circle cx="350" cy="205" r="145" fill="url(#sclera)"/>
+    <g clip-path="url(#globe)">
+      <g id="moving">
+        <circle r="64" fill="url(#iris)" stroke="#163b50"
+                stroke-width="3"/>
+        <g id="fibers" stroke="#80c6cf" stroke-width="1.3"
+           opacity=".65"></g>
+        <circle r="27" fill="#07101b"/>
+        <!-- Gold superior-pole marker makes torsion visible. -->
+        <path d="M0 -61 L0 -38" stroke="#ffd16a"
+              stroke-width="7" stroke-linecap="round"/>
+        <circle cx="-20" cy="-22" r="9" fill="white" opacity=".7"/>
+      </g>
+    </g>
+    <circle cx="350" cy="205" r="145" fill="none"
+            stroke="#718aa5" stroke-width="2"/>
+    <text x="350" y="386" text-anchor="middle"
+          fill="#ffd16a" font-size="15">
+      Gold marker = superior pole of the iris
+    </text>
+  </svg>
+</div>
+
+<p class="note">
+  Schematic movements are exaggerated for teaching. In the actions mode,
+  each muscle's components are illustrated together; amplitudes do not
+  represent measured force or rotation angles. Clinical testing positions
+  emphasize a muscle's vertical action rather than isolating it completely.
+  Normal gaze requires coordinated activity of multiple muscles.
+</p>
+<p class="note">
+  References:
+  <a href="https://eyewiki.aao.org/Extraocular_Muscles"
+     target="_blank">AAO: Extraocular Muscles</a> ·
+  <a href="https://eyewiki.aao.org/Sensory_and_Motor_Testing"
+     target="_blank">AAO: Sensory and Motor Testing</a>
+</p>
+</main>
+
+<script>
+const muscles = [
+  {
+    short:"MR", name:"Medial rectus", nerve:"CN III",
+    actions:"Adduction: the eye turns toward the nose.",
+    x:82,y:0,r:0,
+    setup:0,tx:82,ty:0,
+    test:"Look inward toward the nose."
+  },
+  {
+    short:"LR", name:"Lateral rectus", nerve:"CN VI",
+    actions:"Abduction: the eye turns away from the nose.",
+    x:-82,y:0,r:0,
+    setup:0,tx:-82,ty:0,
+    test:"Look outward away from the nose."
+  },
+  {
+    short:"SR", name:"Superior rectus", nerve:"CN III",
+    actions:"Elevation, intorsion, and adduction.",
+    x:22,y:-70,r:18,
+    setup:-65,tx:-65,ty:-65,
+    test:"First abduct the eye, then look upward."
+  },
+  {
+    short:"IR", name:"Inferior rectus", nerve:"CN III",
+    actions:"Depression, extorsion, and adduction.",
+    x:22,y:70,r:-18,
+    setup:-65,tx:-65,ty:65,
+    test:"First abduct the eye, then look downward."
+  },
+  {
+    short:"SO", name:"Superior oblique", nerve:"CN IV",
+    actions:"Intorsion, depression, and abduction.",
+    x:-22,y:45,r:32,
+    setup:65,tx:65,ty:65,
+    test:"First adduct the eye, then look downward."
+  },
+  {
+    short:"IO", name:"Inferior oblique", nerve:"CN III",
+    actions:"Extorsion, elevation, and abduction.",
+    x:-22,y:-45,r:-32,
+    setup:65,tx:65,ty:-65,
+    test:"First adduct the eye, then look upward."
+  }
+];
+
+const $ = id => document.getElementById(id);
+let selected=0, elapsed=0, playing=true, last=null;
+
+for(let a=0;a<360;a+=10){
+  const rad=a*Math.PI/180;
+  const line=document.createElementNS(
+    "http://www.w3.org/2000/svg","line");
+  line.setAttribute("x1",Math.sin(rad)*31);
+  line.setAttribute("y1",Math.cos(rad)*31);
+  line.setAttribute("x2",Math.sin(rad)*59);
+  line.setAttribute("y2",Math.cos(rad)*59);
+  $("fibers").appendChild(line);
+}
+
+muscles.forEach((m,i)=>{
+  const b=document.createElement("button");
+  b.textContent=m.short;
+  b.title=m.name;
+  b.onclick=()=>choose(i);
+  $("buttons").appendChild(b);
+});
+
+function choose(i){
+  selected=i; elapsed=0; updateText(); draw(0,0,0);
+}
+function updateText(){
+  const m=muscles[selected], testing=$("mode").value==="test";
+  $("title").textContent=m.name+" · "+m.nerve;
+  $("description").textContent=testing ? m.test : m.actions;
+  [...$("buttons").children].forEach((b,i)=>
+    b.classList.toggle("active",i===selected));
+}
+function draw(x,y,r){
+  // Screen-right is nasal for the patient's right eye.
+  // Positive SVG rotation moves its superior pole toward the nose.
+  $("moving").setAttribute("transform",
+    `translate(${350+x} ${205+y}) rotate(${r})`);
+}
+function ease(v){
+  v=Math.max(0,Math.min(1,v));
+  return v*v*(3-2*v);
+}
+
+$("play").onclick=()=>{
+  playing=!playing;
+  $("play").textContent=playing?"Pause":"Play";
+};
+$("next").onclick=()=>choose((selected+1)%muscles.length);
+$("mode").onchange=()=>choose(selected);
+
+function frame(now){
+  if(last!==null && playing)
+    elapsed+=Math.min((now-last)/1000,.1)*Number($("speed").value);
+  last=now;
+
+  const m=muscles[selected];
+  const testing=$("mode").value==="test";
+  const duration=8;
+  if(elapsed>=duration){
+    selected=(selected+1)%muscles.length;
+    elapsed%=duration; updateText();
+  }
+  const current=muscles[selected], t=elapsed;
+
+  if(!testing){
+    let p;
+    if(t<1) p=0;
+    else if(t<3) p=ease((t-1)/2);
+    else if(t<5) p=1;
+    else if(t<7) p=1-ease((t-5)/2);
+    else p=0;
+    draw(current.x*p,current.y*p,current.r*p);
+    $("phase").textContent=t<1 || t>=7
+      ? "Primary position"
+      : t<5
+        ? "Action components from primary position"
+        : "Return to primary position";
+  }else{
+    let x=0,y=0;
+    if(t<1){
+      $("phase").textContent="Primary position";
+    }else if(t<3){
+      x=current.setup*ease((t-1)/2);
+      $("phase").textContent=current.setup===0
+        ? "Primary position"
+        : current.setup>0 ? "Adduct the eye" : "Abduct the eye";
+    }else if(t<5){
+      const p=ease((t-3)/2);
+      x=current.setup+(current.tx-current.setup)*p;
+      y=current.ty*p;
+      $("phase").textContent="Demonstrate the tested movement";
+    }else if(t<6){
+      x=current.tx;y=current.ty;
+      $("phase").textContent="Hold the testing position";
+    }else{
+      const p=1-ease((t-6)/2);
+      x=current.tx*p;y=current.ty*p;
+      $("phase").textContent="Return to primary position";
+    }
+    draw(x,y,0);
+  }
+  requestAnimationFrame(frame);
+}
+updateText();
+requestAnimationFrame(frame);
+</script>
+</html>
