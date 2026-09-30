@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Extraocular Muscles and Eye Movements</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #101b2c;
+    color: #eef4ff;
+    font: 17px system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 1000px;
+    margin: auto;
+    padding: 26px;
+  }
+
+  h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+
+  .muted {
+    color: #b5c5da;
+    font-size: 15px;
+  }
+
+  .panel {
+    background: #192940;
+    border-radius: 20px;
+    padding: 22px;
+    margin: 20px 0;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    max-height: 410px;
+  }
+
+  button,
+  select {
+    font: inherit;
+    color: #eef4ff;
+    background: #263e5e;
+    border: 1px solid #6582a5;
+    border-radius: 9px;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  button:hover,
+  select:hover {
+    border-color: #63e0ef;
+  }
+
+  button:focus-visible,
+  select:focus-visible {
+    outline: 3px solid #ffd47c;
+    outline-offset: 3px;
+  }
+
+  button.active {
+    background: #176c83;
+    border-color: #63e0ef;
+  }
+
+  #title {
+    font-size: 25px;
+    color: #66e1eb;
+  }
+
+  #description {
+    min-height: 52px;
+    line-height: 1.6;
+  }
+
+  #phase {
+    color: #ffd47c;
+    min-height: 26px;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .control-label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: #b5c5da;
+    font-size: 14px;
+  }
+
+  .control-label select {
+    font-size: 16px;
+  }
+
+  #buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #buttons button {
+    min-width: 58px;
+  }
+
+  #playback-status {
+    color: #b5c5da;
+    font-size: 14px;
+    margin: 12px 0 0;
+  }
+
+  a {
+    color: #8fdae9;
+  }
+
+  .note {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #bbcada;
+  }
+
+  @media (max-width: 600px) {
+    main {
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 25px;
+    }
+
+    .panel {
+      padding: 16px;
+    }
+
+    #title {
+      font-size: 22px;
+    }
+
+    .control-label {
+      width: 100%;
+    }
+
+    .control-label select {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+
+<body>
+<main>
+  <h1>Extraocular Muscles</h1>
+  <p class="muted">
+    Right eye • Anterior view • Nose on your right
+  </p>
+
+  <div class="controls">
+    <button id="play" type="button">Pause</button>
+    <button id="next" type="button">Next muscle</button>
+
+    <label class="control-label">
+      Playback
+      <select id="playback">
+        <option value="all" selected>
+          All muscles in sequence
+        </option>
+        <option value="single">
+          Repeat selected muscle
+        </option>
+      </select>
+    </label>
+
+    <label class="control-label">
+      Animation mode
+      <select id="mode">
+        <option value="actions">
+          Actions from primary position
+        </option>
+        <option value="test">
+          Clinical testing positions
+        </option>
+      </select>
+    </label>
+
+    <label class="control-label">
+      Speed
+      <select id="speed">
+        <option value="0.6">Slow</option>
+        <option value="1" selected>Normal</option>
+        <option value="1.5">Fast</option>
+      </select>
+    </label>
+  </div>
+
+  <div id="buttons" aria-label="Select a muscle"></div>
+  <p id="playback-status"></p>
+
+  <div class="panel">
+    <div id="title"></div>
+    <p id="description"></p>
+    <div id="phase"></div>
+
+    <svg
+      viewBox="0 0 800 410"
+      role="img"
+      aria-labelledby="eye-title eye-description"
+    >
+      <title id="eye-title">Animated right eye</title>
+      <desc id="eye-description">
+        An anterior view of the right eye demonstrating
+        extraocular muscle actions. The nose is on the
+        viewer's right. A gold iris marker shows torsion.
+      </desc>
+
+      <defs>
+        <radialGradient id="sclera" cx="40%" cy="35%">
+          <stop offset="0" stop-color="white"/>
+          <stop offset=".75" stop-color="#e7edf4"/>
+          <stop offset="1" stop-color="#98adc4"/>
+        </radialGradient>
+
+        <radialGradient id="iris">
+          <stop offset="0" stop-color="#0b3446"/>
+          <stop offset=".65" stop-color="#419db4"/>
+          <stop offset="1" stop-color="#173f55"/>
+        </radialGradient>
+
+        <clipPath id="globe">
+          <circle cx="350" cy="205" r="145"/>
+        </clipPath>
+      </defs>
+
+      <text
+        x="140" y="35"
+        fill="#bbcada" font-size="17"
+      >Temporal</text>
+
+      <text
+        x="500" y="35"
+        fill="#bbcada" font-size="17"
+      >Nasal</text>
+
+      <path
+        d="M620 115 Q565 205 620 295"
+        fill="none"
+        stroke="#8195ae"
+        stroke-width="5"
+      />
+
+      <text
+        x="625" y="210"
+        fill="#bbcada" font-size="18"
+      >Nose</text>
+
+      <circle
+        cx="350" cy="205" r="148"
+        fill="#435870"
+      />
+
+      <circle
+        cx="350" cy="205" r="145"
+        fill="url(#sclera)"
+      />
+
+      <g clip-path="url(#globe)">
+        <g id="moving" transform="translate(350 205)">
+          <circle
+            r="64"
+            fill="url(#iris)"
+            stroke="#163b50"
+            stroke-width="3"
+          />
+
+          <g
+            id="fibers"
+            stroke="#80c6cf"
+            stroke-width="1.3"
+            opacity=".65"
+          ></g>
+
+          <circle r="27" fill="#07101b"/>
+
+          <!-- Superior-pole marker for visualizing torsion. -->
+          <path
+            d="M0 -61 L0 -38"
+            stroke="#ffd16a"
+            stroke-width="7"
+            stroke-linecap="round"
+          />
+
+          <circle
+            cx="-20" cy="-22" r="9"
+            fill="white" opacity=".7"
+          />
+        </g>
+      </g>
+
+      <circle
+        cx="350" cy="205" r="145"
+        fill="none"
+        stroke="#718aa5"
+        stroke-width="2"
+      />
+
+      <text
+        x="350" y="386"
+        text-anchor="middle"
+        fill="#ffd16a"
+        font-size="15"
+      >Gold marker = superior pole of the iris</text>
+    </svg>
+  </div>
+
+  <p class="note">
+    In “All muscles in sequence,” the animation advances
+    to the next muscle after each cycle. In “Repeat selected
+    muscle,” the current muscle repeats until you pause or
+    select another muscle. “Next muscle” changes the selected
+    muscle in either playback mode.
+  </p>
+
+  <p class="note">
+    Schematic movements are exaggerated for teaching.
+    In the actions mode, each muscle's components are
+    illustrated together; amplitudes do not represent
+    measured force or rotation angles. Clinical testing
+    positions emphasize a muscle's vertical action rather
+    than isolating it completely. Normal gaze requires
+    coordinated activity of multiple muscles.
+  </p>
+
+  <p class="note">
+    References:
+    <a
+      href="https://eyewiki.aao.org/Extraocular_Muscles"
+      target="_blank"
+      rel="noopener noreferrer"
+    >AAO: Extraocular Muscles</a>
+    ·
+    <a
+      href="https://eyewiki.aao.org/Sensory_and_Motor_Testing"
+      target="_blank"
+      rel="noopener noreferrer"
+    >AAO: Sensory and Motor Testing</a>
+  </p>
+</main>
+
+<script>
+"use strict";
+
+const muscles = [
+  {
+    short: "MR",
+    name: "Medial rectus",
+    nerve: "CN III",
+    actions: "Adduction: the eye turns toward the nose.",
+    x: 82,
+    y: 0,
+    r: 0,
+    setup: 0,
+    tx: 82,
+    ty: 0,
+    test: "Look inward toward the nose."
+  },
+  {
+    short: "LR",
+    name: "Lateral rectus",
+    nerve: "CN VI",
+    actions: "Abduction: the eye turns away from the nose.",
+    x: -82,
+    y: 0,
+    r: 0,
+    setup: 0,
+    tx: -82,
+    ty: 0,
+    test: "Look outward away from the nose."
+  },
+  {
+    short: "SR",
+    name: "Superior rectus",
+    nerve: "CN III",
+    actions: "Elevation, intorsion, and adduction.",
+    x: 22,
+    y: -70,
+    r: 18,
+    setup: -65,
+    tx: -65,
+    ty: -65,
+    test: "First abduct the eye, then look upward."
+  },
+  {
+    short: "IR",
+    name: "Inferior rectus",
+    nerve: "CN III",
+    actions: "Depression, extorsion, and adduction.",
+    x: 22,
+    y: 70,
+    r: -18,
+    setup: -65,
+    tx: -65,
+    ty: 65,
+    test: "First abduct the eye, then look downward."
+  },
+  {
+    short: "SO",
+    name: "Superior oblique",
+    nerve: "CN IV",
+    actions: "Intorsion, depression, and abduction.",
+    x: -22,
+    y: 45,
+    r: 32,
+    setup: 65,
+    tx: 65,
+    ty: 65,
+    test: "First adduct the eye, then look downward."
+  },
+  {
+    short: "IO",
+    name: "Inferior oblique",
+    nerve: "CN III",
+    actions: "Extorsion, elevation, and abduction.",
+    x: -22,
+    y: -45,
+    r: -32,
+    setup: 65,
+    tx: 65,
+    ty: -65,
+    test: "First adduct the eye, then look upward."
+  }
+];
+
+const $ = id => document.getElementById(id);
+const cycleDuration = 8;
+
+let selected = 0;
+let elapsed = 0;
+let playing = true;
+let lastTimestamp = null;
+
+// Add radial iris fibers.
+for (let angle = 0; angle < 360; angle += 10) {
+  const radians = angle * Math.PI / 180;
+  const line = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "line"
+  );
+
+  line.setAttribute("x1", Math.sin(radians) * 31);
+  line.setAttribute("y1", Math.cos(radians) * 31);
+  line.setAttribute("x2", Math.sin(radians) * 59);
+  line.setAttribute("y2", Math.cos(radians) * 59);
+
+  $("fibers").appendChild(line);
+}
+
+// Create muscle-selection buttons.
+muscles.forEach((muscle, index) => {
+  const button = document.createElement("button");
+
+  button.type = "button";
+  button.textContent = muscle.short;
+  button.title = muscle.name;
+  button.setAttribute("aria-label", muscle.name);
+  button.addEventListener("click", () => chooseMuscle(index));
+
+  $("buttons").appendChild(button);
+});
+
+function chooseMuscle(index) {
+  selected = index;
+  elapsed = 0;
+  lastTimestamp = null;
+
+  updateText();
+  renderAnimation();
+}
+
+function updateText() {
+  const muscle = muscles[selected];
+  const testing = $("mode").value === "test";
+
+  $("title").textContent =
+    muscle.name + " · " + muscle.nerve;
+
+  $("description").textContent =
+    testing ? muscle.test : muscle.actions;
+
+  [...$("buttons").children].forEach((button, index) => {
+    const active = index === selected;
+
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  updatePlaybackStatus();
+}
+
+function updatePlaybackStatus() {
+  const repeating = $("playback").value === "single";
+  const state = playing ? "Playing" : "Paused";
+
+  $("playback-status").textContent = repeating
+    ? `${state}: repeating ${muscles[selected].name.toLowerCase()}.`
+    : `${state}: all muscles in sequence.`;
+}
+
+function drawEye(x, y, rotation) {
+  // Screen-right is nasal for the patient's right eye.
+  // Positive SVG rotation moves the superior pole nasally.
+  $("moving").setAttribute(
+    "transform",
+    `translate(${350 + x} ${205 + y}) rotate(${rotation})`
+  );
+}
+
+function ease(value) {
+  const bounded = Math.max(0, Math.min(1, value));
+  return bounded * bounded * (3 - 2 * bounded);
+}
+
+function renderActions(muscle, time) {
+  let progress;
+
+  if (time < 1) {
+    progress = 0;
+  } else if (time < 3) {
+    progress = ease((time - 1) / 2);
+  } else if (time < 5) {
+    progress = 1;
+  } else if (time < 7) {
+    progress = 1 - ease((time - 5) / 2);
+  } else {
+    progress = 0;
+  }
+
+  drawEye(
+    muscle.x * progress,
+    muscle.y * progress,
+    muscle.r * progress
+  );
+
+  if (time < 1 || time >= 7) {
+    $("phase").textContent = "Primary position";
+  } else if (time < 5) {
+    $("phase").textContent =
+      "Action components from primary position";
+  } else {
+    $("phase").textContent = "Return to primary position";
+  }
+}
+
+function renderTesting(muscle, time) {
+  let x = 0;
+  let y = 0;
+
+  if (time < 1) {
+    $("phase").textContent = "Primary position";
+  } else if (time < 3) {
+    x = muscle.setup * ease((time - 1) / 2);
+
+    $("phase").textContent = muscle.setup === 0
+      ? "Primary position"
+      : muscle.setup > 0
+        ? "Adduct the eye"
+        : "Abduct the eye";
+  } else if (time < 5) {
+    const progress = ease((time - 3) / 2);
+
+    x = muscle.setup +
+      (muscle.tx - muscle.setup) * progress;
+    y = muscle.ty * progress;
+
+    $("phase").textContent =
+      "Demonstrate the tested movement";
+  } else if (time < 6) {
+    x = muscle.tx;
+    y = muscle.ty;
+
+    $("phase").textContent = "Hold the testing position";
+  } else {
+    const progress = 1 - ease((time - 6) / 2);
+
+    x = muscle.tx * progress;
+    y = muscle.ty * progress;
+
+    $("phase").textContent = "Return to primary position";
+  }
+
+  drawEye(x, y, 0);
+}
+
+function renderAnimation() {
+  const muscle = muscles[selected];
+
+  if ($("mode").value === "test") {
+    renderTesting(muscle, elapsed);
+  } else {
+    renderActions(muscle, elapsed);
+  }
+}
+
+$("play").addEventListener("click", () => {
+  playing = !playing;
+  lastTimestamp = null;
+
+  $("play").textContent = playing ? "Pause" : "Play";
+  updatePlaybackStatus();
+});
+
+$("next").addEventListener("click", () => {
+  chooseMuscle((selected + 1) % muscles.length);
+});
+
+$("mode").addEventListener("change", () => {
+  chooseMuscle(selected);
+});
+
+$("playback").addEventListener("change", () => {
+  // Preserve the current muscle, position, and play/pause state.
+  updatePlaybackStatus();
+});
+
+document.addEventListener("visibilitychange", () => {
+  // Avoid a time jump when returning to the browser tab.
+  lastTimestamp = null;
+});
+
+function frame(timestamp) {
+  if (lastTimestamp !== null && playing) {
+    const delta = Math.min(
+      (timestamp - lastTimestamp) / 1000,
+      0.1
+    );
+
+    elapsed += delta * Number($("speed").value);
+  }
+
+  lastTimestamp = timestamp;
+
+  if (elapsed >= cycleDuration) {
+    // Advance the muscle only in sequential playback.
+    if ($("playback").value === "all") {
+      selected = (selected + 1) % muscles.length;
+    }
+
+    // Repeat the current muscle in single-muscle playback.
+    elapsed %= cycleDuration;
+    updateText();
+  }
+
+  renderAnimation();
+  requestAnimationFrame(frame);
+}
+
+updateText();
+renderAnimation();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
